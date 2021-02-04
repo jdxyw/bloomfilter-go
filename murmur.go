@@ -1,8 +1,3 @@
-// package bloomfilter implements murmurHash2 32-bit
-// The original algorithm is developed by Austin Appleby.
-// MurmurHash is a non-cryptographic hash function suitable for general hash-based lookup.
-// http://sites.google.com/site/murmurhash/
-// https://en.wikipedia.org/wiki/MurmurHash
 package bloomfilter
 
 const (
@@ -12,6 +7,10 @@ const (
 )
 
 // MurmurHash2 returns a 32-bit hash.
+// The original algorithm is developed by Austin Appleby.
+// MurmurHash is a non-cryptographic hash function suitable for general hash-based lookup.
+// http://sites.google.com/site/murmurhash/
+// https://en.wikipedia.org/wiki/MurmurHash
 func MurmurHash2(b []byte, seed uint32) uint32 {
 	var k uint32
 
