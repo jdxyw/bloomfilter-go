@@ -8,6 +8,7 @@ import (
 const (
 	ln2s2 = 0.480453013918201 // ln(2)^2
 	ln2   = 0.693147180559945 // ln(2)
+	seed  = 0x9747b28c
 )
 
 var (
@@ -21,6 +22,7 @@ type BloomFilter struct {
 	h       int     // The number of the has function
 	entries int64   // The expected number of elements this filter should supports.
 	err     float64 // The expected probability of collision.
+	bits    int     // The total bits this bloom filter supports
 }
 
 // NewBloomFilter returns a pointer of a BloomFilter struct.
@@ -41,9 +43,9 @@ func NewBloomFilter(entires int64, err float64) (*BloomFilter, error) {
 	totalBytes := 0
 
 	if totalBits%8 == 0 {
-		totalBytes = totalBits%8 + 1
-	} else {
 		totalBytes = totalBits / 8
+	} else {
+		totalBytes = totalBits/8 + 1
 	}
 
 	return &BloomFilter{
@@ -51,5 +53,63 @@ func NewBloomFilter(entires int64, err float64) (*BloomFilter, error) {
 		entries: entires,
 		err:     err,
 		h:       int(ln2 * bpe),
+		bits:    totalBits,
 	}, nil
+}
+
+// Check returns true if the element exists in this bloom filter.
+func (b *BloomFilter) Check(data []byte) bool {
+	h1 := MurmurHash2(data, seed)
+	h2 := MurmurHash2(data, h1)
+
+	for i := 0; i < b.h; i++ {
+		x := (h1 + uint32(i)*h2) % uint32(b.bits)
+		if b.isBitSet(x) == false {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Set adds data to this bloom filter
+func (b *BloomFilter) Set(data []byte) {
+	h1 := MurmurHash2(data, seed)
+	h2 := MurmurHash2(data, h1)
+
+	for i := 0; i < b.h; i++ {
+		x := (h1 + uint32(i)*h2) % uint32(b.bits)
+		b.setBit(x)
+	}
+}
+
+func (b *BloomFilter) isBitSet(bidx uint32) bool {
+	var bytesIdx, bitIdx uint32
+
+	bytesIdx = bidx / uint32(8)
+	if bidx%8 == 0 {
+		bitIdx = uint32(7)
+	} else {
+		bitIdx = bidx % uint32(8)
+	}
+
+	c := b.bitmap[int(bytesIdx)]
+	if (c&(1<<bitIdx))>>bitIdx == 0x01 {
+		return true
+	}
+
+	return false
+}
+
+func (b *BloomFilter) setBit(bidx uint32) {
+	var bytesIdx, bitIdx uint32
+
+	bytesIdx = bidx / uint32(8)
+	if bidx%8 == 0 {
+		bitIdx = uint32(7)
+	} else {
+		bitIdx = bidx % uint32(8)
+	}
+
+	b.bitmap[int(bytesIdx)] = b.bitmap[int(bytesIdx)] | (1 << bitIdx)
 }
