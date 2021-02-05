@@ -3,6 +3,7 @@ package bloomfilter
 import (
 	"errors"
 	"math"
+	"sync"
 )
 
 const (
@@ -23,6 +24,7 @@ type BloomFilter struct {
 	entries int64   // The expected number of elements this filter should supports.
 	err     float64 // The expected probability of collision.
 	bits    int     // The total bits this bloom filter supports
+	mutex sync.RWMutex
 }
 
 // NewBloomFilter returns a pointer of a BloomFilter struct.
@@ -62,6 +64,9 @@ func (b *BloomFilter) Check(data []byte) bool {
 	h1 := MurmurHash2(data, seed)
 	h2 := MurmurHash2(data, h1)
 
+	b.mutex.RLock()
+	defer b.mutex.RUnlock()
+
 	for i := 0; i < b.h; i++ {
 		x := (h1 + uint32(i)*h2) % uint32(b.bits)
 		if b.isBitSet(x) == false {
@@ -76,6 +81,9 @@ func (b *BloomFilter) Check(data []byte) bool {
 func (b *BloomFilter) Set(data []byte) {
 	h1 := MurmurHash2(data, seed)
 	h2 := MurmurHash2(data, h1)
+
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
 
 	for i := 0; i < b.h; i++ {
 		x := (h1 + uint32(i)*h2) % uint32(b.bits)
