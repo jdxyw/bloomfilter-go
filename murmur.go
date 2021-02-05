@@ -2,8 +2,8 @@ package bloomfilter
 
 const (
 	// m and r are mixing constants generated offline. Taken from the original implementation in C.
-	m     = 0x5bd1e995
-	r     = 24
+	m = 0x5bd1e995
+	r = 24
 )
 
 // MurmurHash2 returns a 32-bit hash.

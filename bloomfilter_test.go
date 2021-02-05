@@ -21,9 +21,9 @@ func TestBloomFilter_Check(t *testing.T) {
 		data []byte
 	}
 	tests := []struct {
-		name   string
-		args   args
-		want   bool
+		name string
+		args args
+		want bool
 	}{
 		{name: "case1", args: args{data: []byte(" ")}, want: true},
 		{name: "case2", args: args{data: []byte("a")}, want: true},
