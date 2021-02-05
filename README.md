@@ -7,11 +7,13 @@
 A Bloom filter is a space-efficient probabilistic data structure, conceived by Burton Howard Bloom in 1970, that is used to test whether an element is a member of a set. False positive matches are possible, but false negatives are not – in other words, a query returns either "possibly in set" or "definitely not in set".  (from wikipedia)
 
 In short, if a bloom filter return `false` for a specific element, then the element is `definitely not` in this bloom filter. 
+
 If a bloom filter return `true` for a specific element, then it's possible that the element is not in this bloom filter. The probability (error rate) is based on the number of the hash functions, the total number of bit, and the bit per element.
 
-`NewBloomFilter` provides two parameters. The first one is `enries` that indicate your expected max number of element.
+`NewBloomFilter` provides two parameters. The first one is `entries` that indicate your expected max number of element.
 The second one is `err` that indicate the false positive rate (error rate) you allows. Based on these two parameters, this package could find the optimal number for hash function and bit per element.
-# Install
+
+## Install
 
 Install this package through `go get`.
 
@@ -19,7 +21,7 @@ Install this package through `go get`.
 go get github.com/jdxyw/bloomfilter-go
 ```
 
-# Usage
+## Usage
 
 The usage is quite simple.
 
@@ -47,7 +49,7 @@ func main() {
 }
 ```
 
-# Benchmark
+## Benchmark
 
 ```bash
 go test -bench=. ./benchmark/
